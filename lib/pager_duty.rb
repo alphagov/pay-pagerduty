@@ -5,6 +5,17 @@ class PagerDuty
     @api_token = api_token
   end
 
+  def schedules
+    HTTParty.get(
+      "https://api.pagerduty.com/schedules",
+      headers: {
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/vnd.pagerduty+json;version=2',
+        'Authorization' => "Token token=#{api_token}"
+      }
+    )
+  end
+
   def schedule(schedule_id, from_date, to_date)
     HTTParty.get(
       "https://api.pagerduty.com/schedules/#{schedule_id}?since=#{from_date}&until=#{to_date}",
@@ -27,23 +38,10 @@ class PagerDuty
     )
   end
 
-  def override_payload(from, to, user_id)
-    {
-      override: {
-        start: from,
-        end: to,
-        user: {
-          id: user_id,
-          type: 'user_reference'
-        }
-      }
-    }.to_json
-  end
-
-  def create_override(schedule_id, from, to, user_id)
+  def create_override(schedule_id, override)
     HTTParty.post(
       "https://api.pagerduty.com/schedules/#{schedule_id}/overrides",
-      body: override_payload(from, to, user_id).to_json,
+      body: override.to_json,
       headers: {
         'Content-Type' => 'application/json',
         'Accept' => 'application/vnd.pagerduty+json;version=2',

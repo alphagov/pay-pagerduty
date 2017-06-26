@@ -2,37 +2,73 @@
 
 require 'dotenv/load'
 require 'httparty'
-require 'pry'
 require 'date'
 require 'csv'
+require 'logger'
+require 'pry'
 
 $LOAD_PATH << File.dirname(__FILE__) + "/../lib/"
 require 'rotation'
 require 'rota'
 require 'pager_duty'
+require 'cli'
+require 'data_store'
 
-rota_file = File.dirname(__FILE__) + "/../data/rota.csv"
-user_file = File.dirname(__FILE__) + "/../data/users.csv"
-schedules_file = File.dirname(__FILE__) + "/../data/schedules.csv"
+data_store = DataStore.new
+cli = Cli.new
 
-rota = Rota.new(rota_file: rota_file, users_file: user_file, schedules_file: schedules_file)
+if cli.help?
+  cli.banner!
+  exit
+end
+
+logger = Logger.new(STDOUT)
 
 pd = PagerDuty.new(api_token: ENV.fetch('PAGER_DUTY_API_KEY'))
 
-raw_schedule = pd.schedule(rota.schedule_id("In Hours 1"), rota.from, rota.to)
+if cli.get_users?
+  raw_users = pd.users['users']
+  users = raw_users.map { |u| [u['name'], u['id']] }
+  data_store.write_users(users)
+end
 
-actual_schedule = raw_schedule['schedule']['final_schedule']['rendered_schedule_entries']
+if cli.get_schedules?
+  raw_schedules = pd.schedules['schedules']
+  schedules = raw_schedules.map { |s| [s['name'], s['id']] }
+  data_store.write_schedules(schedules)
+end
 
-users = pd.users
+if true
+  logger.info("Reading schedule files...")
+  rota_file = File.dirname(__FILE__) + "/../data/rota.csv"
+  user_file = File.dirname(__FILE__) + "/../data/users.csv"
+  schedules_file = File.dirname(__FILE__) + "/../data/schedules.csv"
 
-rota.rotations("In Hours 1").each do |rotation|
-  overlaps = actual_schedule.select { |s| rotation.includes?(s) }
-  invalid = overlaps.reject {|actual| rotation.valid?(actual)}
+  rota = Rota.new(rota_file: rota_file, users_file: user_file, schedules_file: schedules_file)
 
-  if invalid.any?
-    puts "#{rotation.start} - #{rotation.name} has invalid entries:"
-    invalid.each do |i|
-      puts "  #{i['start']} - #{i['end']} - #{i['user']['summary']}" 
+  data_store.read_schedules.each do |schedule|
+    logger.info("Fetching schedule '#{schedule['Name']}' from PagerDuty")
+    rota_start = rota.from(schedule['Name'])
+    rota_end = rota.to(schedule['Name'])
+    raw_schedule = pd.schedule(schedule['ID'], rota_start, rota_end)
+
+    actual_schedule = raw_schedule['schedule']['final_schedule']['rendered_schedule_entries']
+
+    logger.info schedule['Name']
+    logger.info "----------"
+
+    rota.rotations(schedule['Name']).each do |rotation|
+      overlaps = actual_schedule.select { |s| rotation.includes?(s) }
+      invalid = overlaps.reject {|actual| rotation.valid?(actual)}
+
+      if invalid.any?
+        logger.info "#{rotation.start} - #{rotation.name} has invalid entries:"
+        invalid.each do |i|
+          logger.info "  #{i['start']} - #{i['end']} - #{i['user']['summary']}"
+        end
+      else
+        logger.info "#{rotation.start} - #{rotation.name} is valid"
+      end
     end
   end
 end

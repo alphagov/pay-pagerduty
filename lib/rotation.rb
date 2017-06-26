@@ -20,9 +20,13 @@ class Rotation < Struct.new(:start, :name, :user_id)
   end
 
   def includes?(actual_schedule)
-    from = DateTime.parse(actual_schedule['start'])
-    to = DateTime.parse(actual_schedule['end'])
+    actual_start = DateTime.parse(actual_schedule['start'])
+    actual_end = DateTime.parse(actual_schedule['end'])
 
-    start_date < from && end_date > to
+    includes_date?(actual_start)
+  end
+
+  def includes_date?(actual_date)
+    start_date < actual_date && end_date > actual_date
   end
 end

@@ -9,8 +9,8 @@ RSpec.describe Rotation do
       "start"=>"2017-07-14T09:30:00+01:00",
       "end"=>"2017-07-14T17:30:00+01:00",
       "user"=>{
-        "id"=>actual_id, "type"=>"user_reference", "summary"=>actual_name, 
-        "self"=>"https://api.pagerduty.com/users/#{actual_id}", 
+        "id"=>actual_id, "type"=>"user_reference", "summary"=>actual_name,
+        "self"=>"https://api.pagerduty.com/users/#{actual_id}",
         "html_url"=>"https://govukpay.pagerduty.com/users/#{actual_id}"
       },
       "id"=>"abc123"
@@ -63,5 +63,30 @@ RSpec.describe Rotation do
     r = Rotation.new("2017-07-08", "Someone else", "SE123")
 
     expect(r.includes?(actual_schedule)).to be(true)
+  end
+
+  context "an out of hours rotation" do
+    let(:actual_schedule) {
+      {
+        "start"=>"2017-07-04T17:30:00+01:00",
+        "end"=>"2017-07-05T09:30:00+01:00",
+        "user"=>{
+          "id"=>actual_id, "type"=>"user_reference", "summary"=>actual_name,
+          "self"=>"https://api.pagerduty.com/users/#{actual_id}",
+          "html_url"=>"https://govukpay.pagerduty.com/users/#{actual_id}"
+        },
+        "id"=>"abc123"
+      }
+    }
+
+    it "overlaps if the rota week ends on the day when the oncall period starts" do
+      r = Rotation.new("2017-06-28", "Someone else", "SE123")
+      expect(r.includes?(actual_schedule)).to be(true)
+    end
+
+    it "doesn't overlaps if the rota week starts on the day when the oncall period ends" do
+      r = Rotation.new("2017-07-05", "Someone else", "SE123")
+      expect(r.includes?(actual_schedule)).to be(false)
+    end
   end
 end

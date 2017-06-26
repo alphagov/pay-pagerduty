@@ -11,7 +11,7 @@ class Rota
   def rotations(which_one)
     rota.map do |row|
       start_date = row['Week Commencing']
-      staff_name = row[which_one]
+      staff_name = row.fetch(which_one)
       staff_id = find_user_id(staff_name)
       Rotation.new(
         start_date,
@@ -33,12 +33,12 @@ class Rota
     end
   end
 
-  def from
-    rotations("In Hours 1").map(&:start_date).min
+  def from(which_one)
+    rotations(which_one).map(&:start_date).min
   end
 
-  def to
-    rotations("In Hours 1").map(&:end_date).max
+  def to(which_one)
+    rotations(which_one).map(&:end_date).max
   end
 
   def find_user_id(name)
@@ -49,7 +49,7 @@ class Rota
     if match
       match['ID']
     else
-      raise "Can't find user #{name}"
+      raise "Can't find user '#{name}'"
     end
   end
 end
