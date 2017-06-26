@@ -1,12 +1,13 @@
 require 'date'
 require 'time'
 require 'active_support/core_ext/time/zones'
+require 'override'
 
 class Overrider < Struct.new(:rotation, :schedule_type)
   def overrides
     raise "Illegal schedule_type '#{schedule_type}" unless valid_schedule_type?
     rota_starts.zip(rota_ends).map do |from, to|
-      Override.new(from, to, rotation.user_id)
+      Override.new(from, to, rotation.user_id, rotation.name)
     end
   end
 

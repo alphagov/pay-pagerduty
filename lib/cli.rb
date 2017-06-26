@@ -9,6 +9,10 @@ class Cli
     argv.include?("-y") || argv.include?("--apply")
   end
 
+  def dry_run?
+    argv.include?("-n") || argv.include?("--dry-run")
+  end
+
   def get_users?
     argv.include?("-u") || argv.include?("--get-users")
   end

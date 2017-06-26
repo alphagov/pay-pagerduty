@@ -1,4 +1,4 @@
-class Override < Struct.new(:from, :to, :user_id)
+class Override < Struct.new(:from, :to, :user_id, :user_name)
 
   def payload
     {

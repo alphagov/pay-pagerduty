@@ -13,6 +13,7 @@ require 'rota'
 require 'pager_duty'
 require 'cli'
 require 'data_store'
+require 'overrider'
 
 data_store = DataStore.new
 cli = Cli.new
@@ -65,6 +66,17 @@ if true
         logger.info "#{rotation.start} - #{rotation.name} has invalid entries:"
         invalid.each do |i|
           logger.info "  #{i['start']} - #{i['end']} - #{i['user']['summary']}"
+        end
+
+        if cli.apply_overrides? || cli.dry_run?
+          logger.warn "  Applying overrides"
+          overrides = Overrider.new(rotation, schedule['Type'].to_sym).overrides
+          overrides.each do |override|
+            logger.info "    #{override.from.iso8601} - #{override.to.iso8601} - #{override.user_name} (#{override.user_id})"
+            if cli.apply_overrides?
+              pd.create_override(schedule['ID'], override)
+            end
+          end
         end
       else
         logger.info "#{rotation.start} - #{rotation.name} is valid"
