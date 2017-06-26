@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+
+require 'dotenv/load'
+require 'httparty'
+require 'pry'
+require 'date'
+require 'csv'
+
+$LOAD_PATH << File.dirname(__FILE__) + "/../lib/"
+require 'rotation'
+require 'rota'
+
+class PagerDuty
+  attr_reader :api_token
+
+  def initialize(api_token: )
+    @api_token = api_token
+  end
+
+  def schedule(schedule_id, from_date, to_date)
+    HTTParty.get(
+      "https://api.pagerduty.com/schedules/#{schedule_id}?since=#{from_date}&until=#{to_date}",
+      headers: {
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/vnd.pagerduty+json;version=2',
+        'Authorization' => "Token token=#{api_token}"
+      }
+    )
+  end
+
+  def users
+    HTTParty.get(
+      "https://api.pagerduty.com/users",
+      headers: {
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/vnd.pagerduty+json;version=2',
+        'Authorization' => "Token token=#{api_token}"
+      }
+    )
+  end
+end
+
+rota_file = File.dirname(__FILE__) + "/../data/rota.csv"
+user_file = File.dirname(__FILE__) + "/../data/users.csv"
+schedules_file = File.dirname(__FILE__) + "/../data/schedules.csv"
+
+rota = Rota.new(rota_file: rota_file, users_file: user_file, schedules_file: schedules_file)
+
+pd = PagerDuty.new(api_token: ENV.fetch('PAGER_DUTY_API_KEY'))
+
+raw_schedule = pd.schedule(rota.schedule_id("In Hours 1"), rota.from, rota.to)
+
+actual_schedule = raw_schedule['schedule']['final_schedule']['rendered_schedule_entries']
+
+users = pd.users
+
+rota.rotations("In Hours 1").each do |rotation|
+  overlaps = actual_schedule.select { |s| rotation.includes?(s) }
+  invalid = overlaps.reject {|actual| rotation.valid?(actual)}
+
+  if invalid.any?
+    puts "#{rotation.start} - #{rotation.name} has invalid entries:"
+    invalid.each do |i|
+      puts "  #{i['start']} - #{i['end']} - #{i['user']['summary']}" 
+    end
+  end
+end
