@@ -12,7 +12,9 @@ RSpec.describe Overrider do
 
   let(:rotation) { Rotation.new(start, name, user_id) }
   let(:schedule_type) { :in_hours }
-  subject(:overrider) { Overrider.new(rotation, schedule_type) }
+  let(:bank_holidays) { [] }
+
+  subject(:overrider) { Overrider.new(rotation, schedule_type, bank_holidays) }
 
   it "generates overrides from a rotation" do
     expect(overrider.overrides.size).to eq(5)
@@ -130,6 +132,41 @@ RSpec.describe Overrider do
     end
   end
 
+  context "rotation overlapping a bank holiday" do
+    let(:start) { "2017-08-23" }
+    let(:bank_holidays) { [Date.parse('2017-08-28')] }
+
+    it "generates overrides from a rotation" do
+      expect(overrider.overrides.size).to eq(4)
+      expect(overrider.overrides).to eq([
+        Override.new(
+          DateTime.parse("2017-08-23T09:30:00+01:00"),
+          DateTime.parse("2017-08-23T17:30:00+01:00"),
+          user_id,
+          name
+        ),
+        Override.new(
+          DateTime.parse("2017-08-24T09:30:00+01:00"),
+          DateTime.parse("2017-08-24T17:30:00+01:00"),
+          user_id,
+          name
+        ),
+        Override.new(
+          DateTime.parse("2017-08-25T09:30:00+01:00"),
+          DateTime.parse("2017-08-25T17:30:00+01:00"),
+          user_id,
+          name
+        ),
+        Override.new(
+          DateTime.parse("2017-08-29T09:30:00+01:00"),
+          DateTime.parse("2017-08-29T17:30:00+01:00"),
+          user_id,
+          name
+        )
+      ])
+    end
+  end
+
   context "out of hours" do
     let(:schedule_type) { :out_of_hours }
 
@@ -202,6 +239,41 @@ RSpec.describe Overrider do
           Override.new(
             DateTime.parse("2017-03-28T17:30:00+01:00"),
             DateTime.parse("2017-03-29T09:30:00+01:00"),
+            user_id,
+            name
+          )
+        ])
+      end
+    end
+
+    context "rotation overlapping a bank holiday" do
+      let(:start) { "2017-08-23" }
+      let(:bank_holidays) { [Date.parse('2017-08-28')] }
+
+      it "generates overrides from a rotation" do
+        expect(overrider.overrides.size).to eq(4)
+        expect(overrider.overrides).to eq([
+          Override.new(
+            DateTime.parse("2017-08-23T17:30:00+01:00"),
+            DateTime.parse("2017-08-24T09:30:00+01:00"),
+            user_id,
+            name
+          ),
+          Override.new(
+            DateTime.parse("2017-08-24T17:30:00+01:00"),
+            DateTime.parse("2017-08-25T09:30:00+01:00"),
+            user_id,
+            name
+          ),
+          Override.new(
+            DateTime.parse("2017-08-25T17:30:00+01:00"),
+            DateTime.parse("2017-08-29T09:30:00+01:00"),
+            user_id,
+            name
+          ),
+          Override.new(
+            DateTime.parse("2017-08-29T17:30:00+01:00"),
+            DateTime.parse("2017-08-30T09:30:00+01:00"),
             user_id,
             name
           )

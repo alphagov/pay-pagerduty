@@ -16,6 +16,16 @@ There are three files you need:
 * ruby 2.x
 * [bundler](http://bundler.io/)
 
+## This is opinionated
+
+It's designed to work specifically with our support rota which works as follows:
+
+* in hours support is 09:30 - 17:30 on weekdays
+* on call is 17:30-09:30 on weekdays and weekends
+* a rotation starts on a Wednesday at 09:30
+
+We *do* take into account bank holidays.
+
 ## Usage
 
 Use bundler to install required packages:
@@ -48,10 +58,10 @@ Now you can do a dry run:
 $ bundle exec ./bin/schedule -n
 ```
 
-This work through each schedule listed in `schedules.csv` in turn and:
+This works through each schedule listed in `schedules.csv` and for each one:
 
-- fetch the schedule from pager duty covering the date range of the entries in `rota.csv`
-- check that the actual schedule matches `rota.csv`
+- fetches the schedule from pager duty covering the date range of the entries in `rota.csv`
+- checks that the actual schedule matches `rota.csv`
 - if it doesn't, it will attempt to create overrides to correct it (these are not applied in dry-run mode)
 
 When you're happy with the proposed changes go ahead and apply them:

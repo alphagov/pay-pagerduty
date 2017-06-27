@@ -3,9 +3,12 @@
 require 'dotenv/load'
 require 'httparty'
 require 'date'
+require 'time'
 require 'csv'
 require 'logger'
 require 'pry'
+require 'active_support/core_ext/time/zones'
+Time.zone = 'Europe/London'
 
 $LOAD_PATH << File.dirname(__FILE__) + "/../lib/"
 require 'rotation'
@@ -60,17 +63,34 @@ if true
 
     rota.rotations(schedule['Name']).each do |rotation|
       overlaps = actual_schedule.select { |s| rotation.includes?(s) }
-      invalid = overlaps.reject {|actual| rotation.valid?(actual)}
 
-      if invalid.any?
-        logger.info "#{rotation.start} - #{rotation.name} has invalid entries:"
-        invalid.each do |i|
-          logger.info "  #{i['start']} - #{i['end']} - #{i['user']['summary']}"
+      actuals = overlaps.map do |ol|
+        Override.new(
+          Time.zone.parse(ol['start']),
+          Time.zone.parse(ol['end']),
+          ol['user']['id'],
+          rotation.name
+        )
+      end
+      expected = Overrider.new(rotation, schedule['Type'].to_sym, data_store.read_bank_holidays).overrides
+
+      need_to_add = (expected - actuals)
+      need_to_delete = (actuals - expected)
+
+      if (need_to_add + need_to_delete).any?
+        logger.info "#{rotation.start} - #{rotation.name} has invalid entries"
+        logger.info "need to add:"
+        need_to_add.each do |i|
+          logger.info "  #{i.from.iso8601} - #{i.to.iso8601} - #{i.user_name}"
+        end
+        logger.info "need to delete:"
+        need_to_delete.each do |i|
+          logger.info "  #{i.from.iso8601} - #{i.to.iso8601} - #{i.user_name}"
         end
 
         if cli.apply_overrides? || cli.dry_run?
           logger.warn "  Applying overrides"
-          overrides = Overrider.new(rotation, schedule['Type'].to_sym).overrides
+          overrides = Overrider.new(rotation, schedule['Type'].to_sym, data_store.read_bank_holidays).overrides
           overrides.each do |override|
             logger.info "    #{override.from.iso8601} - #{override.to.iso8601} - #{override.user_name} (#{override.user_id})"
             if cli.apply_overrides?

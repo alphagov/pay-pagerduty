@@ -33,12 +33,18 @@ class Rota
     end
   end
 
-  def from(which_one)
+  def from_date(which_one)
     rotations(which_one).map(&:start_date).min
   end
 
+  def from(which_one)
+    date = from_date(which_one)
+    Time.zone.parse("#{date.iso8601}T09:30")
+  end
+
   def to(which_one)
-    rotations(which_one).map(&:end_date).max
+    date = rotations(which_one).map(&:end_date).max + 1
+    Time.zone.parse("#{date.iso8601}T09:30")
   end
 
   def find_user_id(name)

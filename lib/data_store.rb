@@ -40,4 +40,8 @@ class DataStore
     CSV.read(schedule_file, headers: true)
   end
 
+  def read_bank_holidays
+    data = File.read(path + 'bank-holidays.json')
+    JSON.parse(data).fetch('events').map {|e| Date.parse(e['date'])}
+  end
 end

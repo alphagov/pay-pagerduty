@@ -1,3 +1,5 @@
+require 'date'
+require 'time'
 class Override < Struct.new(:from, :to, :user_id, :user_name)
 
   def payload

@@ -18,7 +18,7 @@ class PagerDuty
 
   def schedule(schedule_id, from_date, to_date)
     HTTParty.get(
-      "https://api.pagerduty.com/schedules/#{schedule_id}?since=#{from_date}&until=#{to_date}",
+      "https://api.pagerduty.com/schedules/#{schedule_id}?since=#{from_date.iso8601}&until=#{to_date.iso8601}",
       headers: {
         'Content-Type' => 'application/json',
         'Accept' => 'application/vnd.pagerduty+json;version=2',
