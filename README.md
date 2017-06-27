@@ -21,10 +21,10 @@ There are three files you need:
 It's designed to work specifically with our support rota which works as follows:
 
 * in hours support is 09:30 - 17:30 on weekdays
-* on call is 17:30-09:30 on weekdays and weekends
+* on call is 17:30-09:30 on weekdays and 17:30 Friday - 09:30 Monday on weekends
 * a rotation starts on a Wednesday at 09:30
 
-We *do* take into account bank holidays.
+We have rudimentary support for bank holidays, but it doesn't quite work.
 
 ## Usage
 
@@ -34,7 +34,22 @@ Use bundler to install required packages:
 $ bundle install
 ```
 
-Then setup user and schedule data:
+run with --help for usage
+
+```
+$ bundle exec bin/schedule --help
+
+  checks pager duty schedule
+  requires PAGER_DUTY_API_KEY env var
+
+    -y, --apply  apply overrides
+    -n, --dry-run  go through the motions of applying overrides, but don't actually do it
+    -u, --get-users  fetch user list
+    -s, --get-schedules  fetch schedules
+    --help
+```
+
+The first step is to set up the user and schedule data if you haven't already:
 
 ```
 $ bundle exec ./bin/schedule -u -s

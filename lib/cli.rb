@@ -31,6 +31,7 @@ class Cli
   requires PAGER_DUTY_API_KEY env var
 
     -y, --apply  apply overrides
+    -n, --dry-run  go through the motions of applying overrides, but don't actually do it
     -u, --get-users  fetch user list
     -s, --get-schedules  fetch schedules
     --help
