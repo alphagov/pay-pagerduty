@@ -11,6 +11,8 @@ There are three files you need:
     1. '<Schedule name 1>' - heading corresponds to the name of the schedule, value is the name of the user
     1. '<Schedule name 2>' - etc...
 
+For examples see [spec/fixtures/](spec/fixtures).
+
 ## Prerequisites
 
 * ruby 2.x
