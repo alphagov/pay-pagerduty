@@ -92,10 +92,14 @@ if true
           logger.warn "  Applying overrides"
           overrides = Overrider.new(rotation, schedule['Type'].to_sym, data_store.read_bank_holidays).overrides
           overrides.each do |override|
-            logger.info "    #{override.from.iso8601} - #{override.to.iso8601} - #{override.user_name} (#{override.user_id})"
-            if cli.apply_overrides?
+            msg = "#{override.from.iso8601} - #{override.to.iso8601} - #{override.user_name} (#{override.user_id})"
+            if cli.dry_run?
+              msg = "[dry run] #{msg}"
+            else
               pd.create_override(schedule['ID'], override)
             end
+
+            logger.info "    #{msg}"
           end
         end
       else
