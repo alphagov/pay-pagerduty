@@ -35,8 +35,7 @@ if cli.get_users?
 end
 
 if cli.get_schedules?
-  raw_schedules = pd.schedules['schedules']
-  schedules = raw_schedules.map { |s| [s['name'], s['id']] }
+  schedules = pd.schedules.map { |s| [s['name'], s['id']] }
   data_store.write_schedules(schedules)
 end
 
