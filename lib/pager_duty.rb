@@ -1,3 +1,5 @@
+require 'httparty'
+
 class PagerDuty
   attr_reader :api_token
 
@@ -28,14 +30,23 @@ class PagerDuty
   end
 
   def users
-    HTTParty.get(
-      "https://api.pagerduty.com/users",
-      headers: {
-        'Content-Type' => 'application/json',
-        'Accept' => 'application/vnd.pagerduty+json;version=2',
-        'Authorization' => "Token token=#{api_token}"
-      }
-    )
+    limit = 100 # PagerDuty's maximum: https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTU4-pagination#classic-pagination
+    offset = 0
+    users = []
+    while true do
+      batch_results = HTTParty.get(
+        "https://api.pagerduty.com/users?limit=#{limit}&offset=#{offset}",
+        headers: {
+          'Content-Type' => 'application/json',
+          'Accept' => 'application/vnd.pagerduty+json;version=2',
+          'Authorization' => "Token token=#{api_token}"
+        }
+      )
+      users << batch_results["users"]
+      break unless batch_results["more"]
+      offset = offset + limit
+    end
+    users.flatten
   end
 
   def create_override(schedule_id, override)

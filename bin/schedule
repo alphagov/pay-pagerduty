@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'dotenv/load'
-require 'httparty'
 require 'date'
 require 'time'
 require 'csv'
@@ -31,8 +30,7 @@ logger = Logger.new(STDOUT)
 pd = PagerDuty.new(api_token: ENV.fetch('PAGER_DUTY_API_KEY'))
 
 if cli.get_users?
-  raw_users = pd.users['users']
-  users = raw_users.map { |u| [u['name'], u['id']] }
+  users = pd.users.map { |u| [u['name'], u['id']] }
   data_store.write_users(users)
 end
 
