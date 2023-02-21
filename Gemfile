@@ -1,10 +1,11 @@
 source "https://rubygems.org"
 
-gem "httparty"
-gem "dotenv"
 gem "activesupport"
+gem "dotenv"
+gem "httparty"
 
 group :test do
-  gem "rspec"
   gem "pry"
+  gem "rspec"
+  gem "webmock"
 end
