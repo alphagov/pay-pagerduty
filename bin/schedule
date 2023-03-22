@@ -68,7 +68,7 @@ if true
           Time.zone.parse(ol['start']),
           Time.zone.parse(ol['end']),
           ol['user']['id'],
-          rotation.name
+          ol['user']['summary'],
         )
       end
       expected = Overrider.new(rotation, schedule['Type'].to_sym, data_store.read_bank_holidays).overrides
