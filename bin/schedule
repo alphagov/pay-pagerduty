@@ -61,7 +61,8 @@ if true
     logger.info "----------"
 
     rota.rotations(schedule['Name']).each do |rotation|
-      overlaps = actual_schedule.select { |s| rotation.includes?(s) }
+      schedule_type = schedule['Type'].to_sym
+      overlaps = actual_schedule.select { |s| rotation.includes?(s, schedule_type) }
 
       actuals = overlaps.map do |ol|
         Override.new(
@@ -71,7 +72,7 @@ if true
           ol['user']['summary'],
         )
       end
-      expected = Overrider.new(rotation, schedule['Type'].to_sym, data_store.read_bank_holidays).overrides
+      expected = Overrider.new(rotation, schedule_type, data_store.read_bank_holidays).overrides
 
       need_to_add = (expected - actuals)
       need_to_delete = (actuals - expected)
@@ -89,7 +90,7 @@ if true
 
         if cli.apply_overrides? || cli.dry_run?
           logger.warn "  Applying overrides"
-          overrides = Overrider.new(rotation, schedule['Type'].to_sym, data_store.read_bank_holidays).overrides
+          overrides = Overrider.new(rotation, schedule_type, data_store.read_bank_holidays).overrides
           overrides.each do |override|
             msg = "#{override.from.iso8601} - #{override.to.iso8601} - #{override.user_name} (#{override.user_id})"
             if cli.dry_run?

@@ -19,9 +19,14 @@ class Rotation < Struct.new(:start, :name, :user_id)
     self.user_id == actual_user_id
   end
 
-  def includes?(actual_schedule)
+  def includes?(actual_schedule, schedule_type)
     actual_start = DateTime.parse(actual_schedule['start'])
     actual_end = DateTime.parse(actual_schedule['end'])
+
+    if (schedule_type == :in_hours     && actual_start.strftime("%H:%M") != "09:30") ||
+       (schedule_type == :out_of_hours && actual_start.strftime("%H:%M") == "09:30")
+      return false
+    end
 
     includes_date?(actual_start)
   end
