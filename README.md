@@ -35,7 +35,9 @@ Set your API key ENV variable, e.g.:
 export PAGER_DUTY_API_KEY=$(more ~/pagerduty_token.txt)
 ```
 
-Populate the `data/schedules.csv` and `data/users.csv` files by running:
+Create a directory at the root, called `data`.
+Populate the `data/schedules.csv` and `data/users.csv` files by running the following command
+(it will complain about not being able to read `/data/rota.csv`, but you can ignore that for now):
 
 ```
 bundle exec ./bin/schedule -u -s
@@ -47,9 +49,7 @@ Create a dummy bank holidays file (otherwise the scripts will fail):
 echo '{ "events": [] }' > data/bank-holidays.json 
 ```
 
-In the CSVs, remove any schedules and users that are outside of your department.
-
-Finally, add a `Type` column to `data/schedules.csv`. Each row should have a `Type` value of either `in_hours` or `out_of_hours`.
+In `data/schedules.csv`, remove any schedules that are outside of your department, then add a `Type` column to the end. Each row should have a `Type` value of either `in_hours`, `out_of_hours`. If a given schedule is for both in-hours and out-of-hours, you'll need to run the scheduler twice, swapping out `in_hours` for `out_of_hours` and updating all the names.
 
 ## Usage
 
@@ -79,10 +79,12 @@ Week Commencing,Primary - in hours,Secondary - in hours
 Do a dry run:
 
 ```
-$ bundle exec ./bin/schedule -n
+bundle exec ./bin/schedule -n
 ```
 
-This will work through each schedule listed in `schedules.csv` and for each one:
+If this fails with a message like `find_user_id': Can't find user 'John Smith' (RuntimeError)`, you'll need to check your `schedules.csv`; it's likely that their name appears slightly differently there (e.g. 'Johnny Smith', or 'John smith'). *You'll need to update the name in your `rota.csv` to match what's in `schedules.csv`, not the other way around, as this is how the user will be matched in PagerDuty.*
+
+Once the names are all fixed up, the above `exec` command will work through each schedule listed in `schedules.csv` and for each one:
 
 - Fetch the schedule from PagerDuty, covering the date range of the entries in `rota.csv`
 - Check that the actual schedule matches `rota.csv`
@@ -91,7 +93,7 @@ This will work through each schedule listed in `schedules.csv` and for each one:
 When you're happy with the proposed changes, apply them with:
 
 ```
-$ bundle exec ./bin/schedule -y
+bundle exec ./bin/schedule -y
 ```
 
 ## Testing
