@@ -17,15 +17,17 @@ require 'cli'
 require 'data_store'
 require 'overrider'
 
-data_store = DataStore.new
+logger = Logger.new(STDOUT)
+logger.formatter = proc do |severity, datetime, progname, msg|
+  "#{msg}\n" # we don't particularly care about the timings or log levels
+end
+data_store = DataStore.new(logger: logger)
 cli = Cli.new
 
 if cli.help?
   cli.banner!
   exit
 end
-
-logger = Logger.new(STDOUT)
 
 pd = PagerDuty.new(api_token: ENV.fetch('PAGER_DUTY_API_KEY'))
 
