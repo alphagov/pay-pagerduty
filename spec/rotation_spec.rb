@@ -35,34 +35,41 @@ RSpec.describe Rotation do
     expect(r.valid?(actual_schedule)).to be(false)
   end
 
-  it "a rotation which includes the specified slot is considered to overlap" do
+
+  it "overlaps if the rotation includes the specified slot" do
     r = Rotation.new("2017-07-12", "Someone else", "SE123")
 
-    expect(r.includes?(actual_schedule)).to be(true)
+    expect(r.includes?(actual_schedule, :in_hours)).to be(true)
   end
 
-  it "a rotation which starts on the specified slot is considered to overlap" do
+  it "overlaps if the rotation starts on the specified slot" do
     r = Rotation.new("2017-07-14", "Someone else", "SE123")
 
-    expect(r.includes?(actual_schedule)).to be(true)
+    expect(r.includes?(actual_schedule, :in_hours)).to be(true)
   end
 
-  it "a rotation which starts after the specified slot is not considered to overlap" do
+  it "does not overlap if the rotation starts after the specified slot" do
     r = Rotation.new("2017-07-15", "Someone else", "SE123")
 
-    expect(r.includes?(actual_schedule)).to be(false)
+    expect(r.includes?(actual_schedule, :in_hours)).to be(false)
   end
 
-  it "a rotation which starts seven days before the specified slot is not considered to overlap" do
+  it "does not overlap if the rotation starts seven days before the specified slot" do
     r = Rotation.new("2017-07-07", "Someone else", "SE123")
 
-    expect(r.includes?(actual_schedule)).to be(false)
+    expect(r.includes?(actual_schedule, :in_hours)).to be(false)
   end
 
-  it "a rotation which starts six days before the specified slot is considered to overlap" do
+  it "overlaps if the rotation starts six days before the specified slot" do
     r = Rotation.new("2017-07-08", "Someone else", "SE123")
 
-    expect(r.includes?(actual_schedule)).to be(true)
+    expect(r.includes?(actual_schedule, :in_hours)).to be(true)
+  end
+
+  it "does not overlap if the rotation includes the specified slot but is of a different schedule type" do
+    r = Rotation.new("2017-07-12", "Someone else", "SE123")
+
+    expect(r.includes?(actual_schedule, :out_of_hours)).to be(false)
   end
 
   context "an out of hours rotation" do
@@ -81,12 +88,12 @@ RSpec.describe Rotation do
 
     it "overlaps if the rota week ends on the day when the oncall period starts" do
       r = Rotation.new("2017-06-28", "Someone else", "SE123")
-      expect(r.includes?(actual_schedule)).to be(true)
+      expect(r.includes?(actual_schedule, :out_of_hours)).to be(true)
     end
 
     it "doesn't overlaps if the rota week starts on the day when the oncall period ends" do
       r = Rotation.new("2017-07-05", "Someone else", "SE123")
-      expect(r.includes?(actual_schedule)).to be(false)
+      expect(r.includes?(actual_schedule, :out_of_hours)).to be(false)
     end
   end
 end
