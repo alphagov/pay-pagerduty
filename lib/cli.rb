@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Cli
   attr_reader :argv
 
@@ -6,27 +8,27 @@ class Cli
   end
 
   def apply_overrides?
-    argv.include?("-y") || argv.include?("--apply")
+    argv.include?('-y') || argv.include?('--apply')
   end
 
   def dry_run?
-    argv.include?("-n") || argv.include?("--dry-run")
+    argv.include?('-n') || argv.include?('--dry-run')
   end
 
   def get_users?
-    argv.include?("-u") || argv.include?("--get-users")
+    argv.include?('-u') || argv.include?('--get-users')
   end
 
   def get_schedules?
-    argv.include?("-s") || argv.include?("--get-schedules")
+    argv.include?('-s') || argv.include?('--get-schedules')
   end
 
   def help?
-    argv.include?("--help")
+    argv.include?('--help')
   end
 
   def banner!
-    $stderr.puts %{
+    warn %(
   checks pager duty schedule
   requires PAGER_DUTY_API_KEY env var
 
@@ -35,6 +37,6 @@ class Cli
     -u, --get-users  fetch user list
     -s, --get-schedules  fetch schedules
     --help
-}
+)
   end
 end

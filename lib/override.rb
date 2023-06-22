@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 require 'date'
 require 'time'
-class Override < Struct.new(:from, :to, :user_id, :user_name)
-
+Override = Struct.new(:from, :to, :user_id, :user_name) do
   def payload
     {
       override: {
@@ -15,7 +16,7 @@ class Override < Struct.new(:from, :to, :user_id, :user_name)
     }
   end
 
-  def to_json
+  def to_json(*_args)
     payload.to_json
   end
 end
