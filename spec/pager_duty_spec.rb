@@ -20,8 +20,8 @@ RSpec.describe PagerDuty do
     }
   end
 
-  it 'retrieves the full list of schedules' do
-    schedule = {
+  let(:schedule) do
+    {
       'id' => 'PFTO260',
       'type' => 'schedule',
       'summary' => 'Some schedule',
@@ -33,7 +33,9 @@ RSpec.describe PagerDuty do
       'escalation_policies' => [],
       'teams' => [team]
     }
+  end
 
+  it 'retrieves the full list of schedules' do
     request = stub_request(:get, 'https://api.pagerduty.com/schedules?limit=100')
               .to_return(
                 headers: { 'Content-Type' => 'application/json' },
@@ -54,36 +56,36 @@ RSpec.describe PagerDuty do
   end
 
   it 'paginates through the list of users' do
-    request_1 = stub_request(:get, 'https://api.pagerduty.com/users?limit=100&offset=0')
-                .to_return(
-                  headers: { 'Content-Type' => 'application/json' },
-                  body: {
-                    users: [
-                      user
-                      # imagine there are 99 more
-                    ],
-                    limit: 100,
-                    offset: 0,
-                    more: true
-                  }.to_json
-                )
-    request_2 = stub_request(:get, 'https://api.pagerduty.com/users?limit=100&offset=100')
-                .to_return(
-                  headers: { 'Content-Type' => 'application/json' },
-                  body: {
-                    users: [
-                      user # pretend this is a different user to the one from the first request. It doesn't really matter.
-                      # as before, imagine there are up to 99 more
-                    ],
-                    limit: 100,
-                    offset: 100,
-                    more: false
-                  }.to_json
-                )
+    request1 = stub_request(:get, 'https://api.pagerduty.com/users?limit=100&offset=0')
+               .to_return(
+                 headers: { 'Content-Type' => 'application/json' },
+                 body: {
+                   users: [
+                     user
+                     # imagine there are 99 more
+                   ],
+                   limit: 100,
+                   offset: 0,
+                   more: true
+                 }.to_json
+               )
+    request2 = stub_request(:get, 'https://api.pagerduty.com/users?limit=100&offset=100')
+               .to_return(
+                 headers: { 'Content-Type' => 'application/json' },
+                 body: {
+                   users: [
+                     user # pretend this is a different user to the one from the first request. It doesn't really matter.
+                     # as before, imagine there are up to 99 more
+                   ],
+                   limit: 100,
+                   offset: 100,
+                   more: false
+                 }.to_json
+               )
 
     pd = PagerDuty.new(api_token: 'dummy')
     expect(pd.users).to eq([user, user])
-    expect(request_1).to have_been_requested
-    expect(request_2).to have_been_requested
+    expect(request1).to have_been_requested
+    expect(request2).to have_been_requested
   end
 end
