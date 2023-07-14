@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 require 'csv'
 
 class Rota
   attr_reader :rota, :users, :schedules
+
   def initialize(rota_file:, users_file:, schedules_file:)
     @rota = CSV.read(rota_file, headers: true)
     @users = CSV.read(users_file, headers: true)
@@ -26,11 +29,9 @@ class Rota
       row['Name'] == name
     end
 
-    if match
-      match['ID']
-    else
-      raise "Can't find schedule #{name}"
-    end
+    raise "Can't find schedule #{name}" unless match
+
+    match['ID']
   end
 
   def from_date(which_one)
@@ -52,10 +53,8 @@ class Rota
       row['Name'] == name
     end
 
-    if match
-      match['ID']
-    else
-      raise "Can't find user '#{name}'"
-    end
+    raise "Can't find user '#{name}'" unless match
+
+    match['ID']
   end
 end

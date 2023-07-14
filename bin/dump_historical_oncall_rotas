@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'dotenv/load'
 require 'httparty'
@@ -9,10 +10,10 @@ require 'logger'
 require 'active_support/core_ext/time/zones'
 Time.zone = 'Europe/London'
 
-$LOAD_PATH << File.dirname(__FILE__) + "/../lib/"
+$LOAD_PATH << "#{File.dirname(__FILE__)}/../lib/"
 require 'pager_duty'
 
-logger = Logger.new(STDOUT)
+logger = Logger.new($stdout)
 
 pd = PagerDuty.new(api_token: ENV.fetch('PAGER_DUTY_API_KEY'))
 
@@ -21,12 +22,12 @@ pd = PagerDuty.new(api_token: ENV.fetch('PAGER_DUTY_API_KEY'))
 # Out Of Hours 2,PDS0IXC,out_of_hours
 # Escalation,PK37U8Y
 
-out_of_hours_schedules = %w{PAU80KR PDS0IXC PK37U8Y}
+out_of_hours_schedules = %w[PAU80KR PDS0IXC PK37U8Y]
 
 rota_start = DateTime.parse('2017-09-01T00:00:00Z')
 rota_end = DateTime.parse('2018-10-31T12:00:00Z') # Date that we switched over to new pager duty
 
-puts "Schedule,Person,Start,End,Duration (hours)"
+puts 'Schedule,Person,Start,End,Duration (hours)'
 out_of_hours_schedules.each do |s_id|
   raw_schedule = pd.schedule(s_id, rota_start, rota_end)
 

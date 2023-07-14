@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'dotenv/load'
 require 'date'
@@ -9,7 +10,7 @@ require 'pry'
 require 'active_support/core_ext/time/zones'
 Time.zone = 'Europe/London'
 
-$LOAD_PATH << File.dirname(__FILE__) + "/../lib/"
+$LOAD_PATH << "#{File.dirname(__FILE__)}/../lib/"
 require 'rotation'
 require 'rota'
 require 'pager_duty'
@@ -17,11 +18,11 @@ require 'cli'
 require 'data_store'
 require 'overrider'
 
-logger = Logger.new(STDOUT)
-logger.formatter = proc do |severity, datetime, progname, msg|
-  "#{msg}\n" # we don't particularly care about the timings or log levels
+logger = Logger.new($stdout)
+logger.formatter = proc do |_severity, _datetime, _progname, msg|
+  "#{msg}\n" #  we don't particularly care about the timings or log levels
 end
-data_store = DataStore.new(logger: logger)
+data_store = DataStore.new(logger:)
 cli = Cli.new
 
 if cli.help?
@@ -42,12 +43,12 @@ if cli.get_schedules?
 end
 
 if true
-  logger.info("Reading schedule files...")
-  rota_file = File.dirname(__FILE__) + "/../data/rota.csv"
-  user_file = File.dirname(__FILE__) + "/../data/users.csv"
-  schedules_file = File.dirname(__FILE__) + "/../data/schedules.csv"
+  logger.info('Reading schedule files...')
+  rota_file = "#{File.dirname(__FILE__)}/../data/rota.csv"
+  user_file = "#{File.dirname(__FILE__)}/../data/users.csv"
+  schedules_file = "#{File.dirname(__FILE__)}/../data/schedules.csv"
 
-  rota = Rota.new(rota_file: rota_file, users_file: user_file, schedules_file: schedules_file)
+  rota = Rota.new(rota_file:, users_file: user_file, schedules_file:)
 
   data_store.read_schedules.each do |schedule|
     logger.info("Fetching schedule '#{schedule['Name']}' from PagerDuty")
@@ -58,7 +59,7 @@ if true
     actual_schedule = raw_schedule['schedule']['final_schedule']['rendered_schedule_entries']
 
     logger.info schedule['Name']
-    logger.info "----------"
+    logger.info '----------'
 
     rota.rotations(schedule['Name']).each do |rotation|
       schedule_type = schedule['Type'].to_sym
@@ -69,7 +70,7 @@ if true
           Time.zone.parse(ol['start']),
           Time.zone.parse(ol['end']),
           ol['user']['id'],
-          ol['user']['summary'],
+          ol['user']['summary']
         )
       end
       expected = Overrider.new(rotation, schedule_type, data_store.read_bank_holidays).overrides
@@ -79,17 +80,17 @@ if true
 
       if (need_to_add + need_to_delete).any?
         logger.info "#{rotation.start} - #{rotation.name} has invalid entries"
-        logger.info "need to add:"
+        logger.info 'need to add:'
         need_to_add.each do |i|
           logger.info "  #{i.from.iso8601} - #{i.to.iso8601} - #{i.user_name}"
         end
-        logger.info "need to delete:"
+        logger.info 'need to delete:'
         need_to_delete.each do |i|
           logger.info "  #{i.from.iso8601} - #{i.to.iso8601} - #{i.user_name}"
         end
 
         if cli.apply_overrides? || cli.dry_run?
-          logger.warn "  Applying overrides"
+          logger.warn '  Applying overrides'
           overrides = Overrider.new(rotation, schedule_type, data_store.read_bank_holidays).overrides
           overrides.each do |override|
             msg = "#{override.from.iso8601} - #{override.to.iso8601} - #{override.user_name} (#{override.user_id})"

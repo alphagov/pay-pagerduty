@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 require 'httparty'
 
 class PagerDuty
-  # PagerDuty's maximum: https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTU4-pagination#classic-pagination
+  #  PagerDuty's maximum: https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTU4-pagination#classic-pagination
   API_LIMIT = 100
 
   attr_reader :api_token
 
-  def initialize(api_token: )
+  def initialize(api_token:)
     @api_token = api_token
   end
 
@@ -18,7 +20,7 @@ class PagerDuty
         'Accept' => 'application/vnd.pagerduty+json;version=2',
         'Authorization' => "Token token=#{api_token}"
       }
-    )["schedules"]
+    )['schedules']
   end
 
   def schedule(schedule_id, from_date, to_date)
@@ -35,7 +37,7 @@ class PagerDuty
   def users
     offset = 0
     users = []
-    while true do
+    loop do
       batch_results = HTTParty.get(
         "https://api.pagerduty.com/users?limit=#{API_LIMIT}&offset=#{offset}",
         headers: {
@@ -44,9 +46,10 @@ class PagerDuty
           'Authorization' => "Token token=#{api_token}"
         }
       )
-      users << batch_results["users"]
-      break unless batch_results["more"]
-      offset = offset + API_LIMIT
+      users << batch_results['users']
+      break unless batch_results['more']
+
+      offset += API_LIMIT
     end
     users.flatten
   end
