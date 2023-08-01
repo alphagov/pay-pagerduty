@@ -72,7 +72,7 @@ RSpec.describe Rotation do
     expect(r.includes?(actual_schedule, :out_of_hours)).to be(false)
   end
 
-  context "an out of hours rotation" do
+  context "when an out of hours rotation" do
     let(:actual_schedule) do
       {
         "start" => "2017-07-04T17:30:00+01:00",

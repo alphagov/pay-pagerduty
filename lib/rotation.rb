@@ -21,7 +21,6 @@ Rotation = Struct.new(:start, :name, :user_id) do
 
   def includes?(actual_schedule, schedule_type)
     actual_start = DateTime.parse(actual_schedule["start"])
-    DateTime.parse(actual_schedule["end"])
 
     if (schedule_type == :in_hours && actual_start.strftime("%H:%M") != "09:30") ||
         (schedule_type == :out_of_hours && actual_start.strftime("%H:%M") == "09:30")

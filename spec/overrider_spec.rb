@@ -52,7 +52,7 @@ RSpec.describe Overrider do
     ])
   end
 
-  context "a rotation which overlaps the beginning of the UTC/BST transition" do
+  context "when a rotation overlaps the beginning of the UTC/BST transition" do
     let(:start) { "2017-03-22" }
 
     it "generates overrides using the appropriate timezone" do
@@ -92,7 +92,7 @@ RSpec.describe Overrider do
     end
   end
 
-  context "a rotation which overlaps the BST=>UTC transition" do
+  context "when a rotation overlaps the BST=>UTC transition" do
     let(:start) { "2017-10-25" }
 
     it "generates overrides using the appropriate timezone" do
@@ -132,7 +132,7 @@ RSpec.describe Overrider do
     end
   end
 
-  context "rotation overlapping a bank holiday" do
+  context "when a rotation is overlapping a bank holiday" do
     let(:start) { "2017-08-23" }
     let(:bank_holidays) { [Date.parse("2017-08-28")] }
 
@@ -167,7 +167,7 @@ RSpec.describe Overrider do
     end
   end
 
-  context "out of hours" do
+  context "when out of hours" do
     let(:schedule_type) { :out_of_hours }
 
     it "generates overrides from a rotation" do
@@ -206,7 +206,7 @@ RSpec.describe Overrider do
       ])
     end
 
-    context "a rotation which overlaps the beginning of the UTC/BST transition" do
+    context "when a rotation overlaps the beginning of the UTC/BST transition" do
       let(:start) { "2017-03-22" }
 
       it "generates overrides using the appropriate timezone" do
@@ -246,7 +246,7 @@ RSpec.describe Overrider do
       end
     end
 
-    context "rotation overlapping a bank holiday" do
+    context "when a rotation is overlapping a bank holiday" do
       let(:start) { "2017-08-23" }
       let(:bank_holidays) { [Date.parse("2017-08-28")] }
 
