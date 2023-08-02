@@ -7,5 +7,6 @@ gem "httparty"
 group :test do
   gem "pry"
   gem "rspec"
+  gem "rubocop-govuk"
   gem "webmock"
 end

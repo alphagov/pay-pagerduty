@@ -1,0 +1,11 @@
+inherit_gem:
+  rubocop-govuk:
+    - config/default.yml
+    - config/rspec.yml
+
+inherit_mode:
+  merge:
+    - Exclude
+
+Style/DateTime:
+  Enabled: false #Disabled because it's not a safe autocorrect. Time and DateTime differ in the handling of DST etc. 

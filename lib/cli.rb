@@ -26,7 +26,7 @@ class Cli
   end
 
   def banner!
-    $stderr.puts %{
+    warn %(
   checks pager duty schedule
   requires PAGER_DUTY_API_KEY env var
 
@@ -35,6 +35,6 @@ class Cli
     -u, --get-users  fetch user list
     -s, --get-schedules  fetch schedules
     --help
-}
+)
   end
 end
