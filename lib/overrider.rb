@@ -4,12 +4,11 @@ require "active_support/core_ext/time/zones"
 require "override"
 
 class Overrider
-  attr_reader :rotation, :schedule_type, :bank_holidays
+  attr_reader :rotation, :schedule_type
 
-  def initialize(rotation, schedule_type, bank_holidays)
+  def initialize(rotation, schedule_type)
     @rotation = rotation
     @schedule_type = schedule_type
-    @bank_holidays = bank_holidays
   end
 
   def overrides
@@ -25,7 +24,6 @@ class Overrider
       (rotation.start_date...rotation.start_date + 7)
         .reject(&:saturday?)
         .reject(&:sunday?)
-        .reject { |date| bank_holiday?(date) }
         .map do |date|
           Time.use_zone("Europe/London") do
             Time.zone.parse("#{date}T09:30:00")
@@ -35,7 +33,6 @@ class Overrider
       (rotation.start_date...rotation.start_date + 7)
         .reject(&:saturday?)
         .reject(&:sunday?)
-        .reject { |date| bank_holiday?(date) }
         .map do |date|
           Time.use_zone("Europe/London") do
             Time.zone.parse("#{date}T17:30:00")
@@ -49,7 +46,6 @@ class Overrider
       (rotation.start_date...rotation.start_date + 7)
         .reject(&:saturday?)
         .reject(&:sunday?)
-        .reject { |date| bank_holiday?(date) }
         .map do |date|
           Time.use_zone("Europe/London") do
             Time.zone.parse("#{date}T17:30:00")
@@ -59,17 +55,12 @@ class Overrider
       (rotation.start_date + 1...rotation.start_date + 8)
         .reject(&:saturday?)
         .reject(&:sunday?)
-        .reject { |date| bank_holiday?(date) }
         .map do |date|
           Time.use_zone("Europe/London") do
             Time.zone.parse("#{date}T09:30:00")
           end
         end
     end
-  end
-
-  def bank_holiday?(date)
-    bank_holidays.include?(date)
   end
 
   def valid_schedule_type?
