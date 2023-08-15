@@ -43,12 +43,6 @@ Populate the `data/schedules.csv` and `data/users.csv` files by running the foll
 bundle exec ./bin/schedule -u -s
 ```
 
-Create a dummy bank holidays file (otherwise the scripts will fail):
-
-```
-echo '{ "events": [] }' > data/bank-holidays.json 
-```
-
 In `data/schedules.csv`, remove any schedules that are outside of your department, then add a `Type` column to the end. Each row should have a `Type` value of either `in_hours`, `out_of_hours`. If a given schedule is for both in-hours and out-of-hours, you'll need to run the scheduler twice, swapping out `in_hours` for `out_of_hours` and updating all the names.
 
 ## Usage
